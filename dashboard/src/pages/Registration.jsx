@@ -1,22 +1,66 @@
-import { Button, Form, Input } from "antd";
+import { Button, Form, Input, Alert } from "antd";
 import axios from "axios";
+import { useState } from "react";
+import ResendMailModal from "../components/ResendMailModal";
+import "../App.css";
 
 const Registration = () => {
-  const onFinish = async (values) => {
-    console.log("Success:", values);
+  const [showButton, setShowButton] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [msg, setMsg] = useState();
 
-    const data = await axios.post("http://localhost:8000/api/v1/registration", {
-      name: values.name,
-      email: values.email,
-      password: values.password,
-    });
-    console.log(data);
+  // registration function
+  const onFinish = async (values) => {
+    const { data } = await axios.post(
+      "http://localhost:8000/api/v1/registration",
+      {
+        name: values.name,
+        email: values.email,
+        password: values.password,
+      }
+    );
+    if (data.success) {
+      setMsg(data);
+    } else if (data.error) {
+      setMsg(data);
+    }
+    if (data.email) {
+      setShowButton(true);
+    }
   };
+
+  setTimeout(() => {
+    setMsg(false);
+  }, 2500);
   const onFinishFailed = (errorInfo) => {
     console.log("Failed:", errorInfo);
   };
+
+  // resend mail function
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
+  const onResendMail = async (values) => {
+    setIsModalOpen(false);
+    const data = await axios.post("http://localhost:8000/api/v1/resendmail", {
+      email: values.email,
+    });
+    console.log(data);
+  };
+
+  const onResendFailed = (errorInfo) => {
+    console.log("Failed:", errorInfo);
+    setIsModalOpen(false);
+  };
   return (
     <>
+      {msg && (
+        <Alert
+          message={(msg && msg.success) || msg.error}
+          type={(msg.success && `success`) || (msg.error && `error`)}
+        />
+      )}
+
       <Form
         name="basic"
         labelCol={{
@@ -85,6 +129,17 @@ const Registration = () => {
           </Button>
         </Form.Item>
       </Form>
+
+      {showButton && (
+        <>
+          <ResendMailModal
+            isModalOpen={isModalOpen}
+            showModal={showModal}
+            onResendMail={onResendMail}
+            onResendFailed={onResendFailed}
+          />
+        </>
+      )}
     </>
   );
 };

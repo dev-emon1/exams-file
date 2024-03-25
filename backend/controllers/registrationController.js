@@ -46,7 +46,10 @@ const registrationController = async (req, res) => {
           });
         });
 
-        res.send({ name: user.name, email: user.email });
+        res.send({
+          success: "Registration successful. Please check your email.",
+          email: user.email,
+        });
       });
     }
   } catch (error) {
