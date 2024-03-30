@@ -42,10 +42,21 @@ const Registration = () => {
   };
   const onResendMail = async (values) => {
     setIsModalOpen(false);
-    const data = await axios.post("http://localhost:8000/api/v1/resendmail", {
-      email: values.email,
-    });
+    const { data } = await axios.post(
+      "http://localhost:8000/api/v1/resendmail",
+      {
+        email: values.email,
+      }
+    );
     console.log(data);
+    if (data.success) {
+      setMsg(data);
+    } else if (data.error) {
+      setMsg(data);
+    }
+    setTimeout(() => {
+      setMsg(false);
+    }, 3500);
   };
 
   const onResendFailed = (errorInfo) => {

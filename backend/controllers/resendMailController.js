@@ -25,6 +25,7 @@ const resendMailController = async (req, res) => {
           subject: "Verification link",
           html: `Here is your verification link <a href='http://localhost:5173/verification/${token}'>Click me</a>`,
         });
+        res.send({ success: "Mail resend" });
       });
     } else {
       res.send({ error: "Email already verified" });
